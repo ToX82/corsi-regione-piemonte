@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Catalogo Corsi Piemonte</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f5f3ee;
+      --bg-card: #ffffff;
+      --ink: #1a1714;
+      --ink-soft: #5c5650;
+      --ink-muted: #9b948c;
+      --accent: #c8410a;
+      --accent-light: #f4e8e1;
+      --border: #e2ddd7;
+      --sidebar-bg: #1a1714;
+      --sidebar-ink: #f5f3ee;
+      --sidebar-muted: #9b8f87;
+      --tag-bg: #eeeae4;
+      --shadow: 0 2px 12px rgba(26,23,20,0.08);
+      --shadow-hover: 0 8px 32px rgba(26,23,20,0.14);
+      --radius: 10px;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--sidebar-bg);
+      color: var(--sidebar-ink);
+      padding: 28px 40px 24px;
+      display: flex;
+      align-items: flex-end;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .header-title { flex: 1; min-width: 220px; }
+    .header-title h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(1.6rem, 3vw, 2.4rem);
+      font-weight: 400;
+      letter-spacing: -0.01em;
+      line-height: 1.15;
+    }
+    .header-title p {
+      color: var(--sidebar-muted);
+      font-size: 0.85rem;
+      margin-top: 6px;
+      font-weight: 300;
+    }
+    .header-count {
+      font-size: 0.8rem;
+      color: var(--sidebar-muted);
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      padding: 4px 14px;
+      white-space: nowrap;
+      align-self: center;
+    }
+    #count-num { color: var(--sidebar-ink); font-weight: 600; }
+
+    /* ── SEARCH BAR ── */
+    .search-wrap {
+      background: var(--sidebar-bg);
+      padding: 0 40px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .search-inner {
+      position: relative;
+      max-width: 680px;
+    }
+    .search-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--sidebar-muted);
+      pointer-events: none;
+    }
+    #search {
+      width: 100%;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 8px;
+      color: var(--sidebar-ink);
+      font-family: inherit;
+      font-size: 0.95rem;
+      padding: 11px 14px 11px 42px;
+      outline: none;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    #search::placeholder { color: var(--sidebar-muted); }
+    #search:focus { border-color: var(--accent); background: rgba(255,255,255,0.12); }
+
+    /* ── LAYOUT ── */
+    .layout {
+      display: flex;
+      flex: 1;
+      align-items: flex-start;
+    }
+
+    /* ── SIDEBAR ── */
+    aside {
+      width: 260px;
+      min-width: 260px;
+      background: var(--sidebar-bg);
+      color: var(--sidebar-ink);
+      min-height: 100%;
+      padding: 28px 24px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+    }
+    .filter-group { margin-bottom: 28px; }
+    .filter-label {
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--sidebar-muted);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .filter-options { display: flex; flex-direction: column; gap: 4px; }
+    .filter-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      text-align: left;
+      color: rgba(245,243,238,0.7);
+      font-family: inherit;
+      font-size: 0.83rem;
+      padding: 6px 10px;
+      border-radius: 6px;
+      transition: background 0.15s, color 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .filter-btn:hover { background: rgba(255,255,255,0.07); color: var(--sidebar-ink); }
+    .filter-btn.active { background: var(--accent); color: #fff; font-weight: 500; }
+    .filter-btn .badge {
+      font-size: 0.7rem;
+      background: rgba(255,255,255,0.12);
+      border-radius: 10px;
+      padding: 1px 7px;
+      min-width: 26px;
+      text-align: center;
+    }
+    .filter-btn.active .badge { background: rgba(255,255,255,0.25); }
+    .reset-btn {
+      display: block;
+      width: 100%;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: var(--sidebar-muted);
+      font-family: inherit;
+      font-size: 0.78rem;
+      padding: 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 24px;
+      transition: background 0.15s, color 0.15s;
+    }
+    .reset-btn:hover { background: rgba(255,255,255,0.12); color: var(--sidebar-ink); }
+
+    /* ── MAIN ── */
+    main {
+      flex: 1;
+      padding: 30px 36px;
+      min-width: 0;
+    }
+    .results-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 22px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .results-text {
+      font-size: 0.82rem;
+      color: var(--ink-muted);
+    }
+    .sort-select {
+      font-family: inherit;
+      font-size: 0.82rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--ink);
+      padding: 6px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      outline: none;
+    }
+
+    /* ── ACTIVE FILTERS CHIPS ── */
+    .active-filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--accent-light);
+      color: var(--accent);
+      border-radius: 20px;
+      padding: 4px 10px 4px 12px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+    .chip button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: inherit;
+      font-size: 1rem;
+      line-height: 1;
+      padding: 0;
+      opacity: 0.7;
+    }
+    .chip button:hover { opacity: 1; }
+
+    /* ── GRID ── */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+      gap: 18px;
+    }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      transition: box-shadow 0.2s, transform 0.2s, border-color 0.2s;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      position: relative;
+      animation: fadeIn 0.25s ease both;
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+    .card:hover {
+      box-shadow: var(--shadow-hover);
+      transform: translateY(-2px);
+      border-color: #ccc7c0;
+    }
+    .card-header { display: flex; flex-direction: column; gap: 6px; }
+    .card-id { font-size: 0.68rem; color: var(--ink-muted); letter-spacing: 0.06em; }
+    .card-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.08rem;
+      line-height: 1.3;
+      color: var(--ink);
+    }
+    .card-operatore {
+      font-size: 0.78rem;
+      color: var(--ink-soft);
+      font-weight: 500;
+    }
+    .card-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+    .tag {
+      display: inline-block;
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      padding: 3px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+    .tag-provincia { background: #e8f0fe; color: #1a56db; }
+    .tag-orario { background: #fef3c7; color: #92400e; }
+    .tag-cert { background: #d1fae5; color: #065f46; }
+    .tag-esenzione { background: #ede9fe; color: #5b21b6; }
+
+    .card-footer {
+      margin-top: auto;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .card-info-row { display: flex; gap: 14px; flex-wrap: wrap; }
+    .card-stat { font-size: 0.78rem; color: var(--ink-soft); display: flex; align-items: center; gap: 4px; }
+    .card-stat svg { color: var(--ink-muted); }
+    .card-cost {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 2px;
+    }
+    .cost-private {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.25rem;
+      color: var(--accent);
+      line-height: 1.1;
+    }
+    .cost-sub {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.62rem;
+      color: var(--ink-muted);
+      text-align: right;
+      line-height: 1.4;
+    }
+
+    .filter-options.scrollable {
+      max-height: 200px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,0.15) transparent;
+    }
+    .filter-options.scrollable::-webkit-scrollbar { width: 4px; }
+    .filter-options.scrollable::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(26,23,20,0.6);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--bg-card);
+      border-radius: 14px;
+      max-width: 680px;
+      width: 100%;
+      max-height: 88vh;
+      overflow-y: auto;
+      box-shadow: 0 24px 64px rgba(26,23,20,0.25);
+      animation: slideUp 0.25s ease;
+    }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: none; } }
+    .modal-head {
+      padding: 28px 28px 20px;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: var(--bg-card);
+      z-index: 1;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+    }
+    .modal-head-text { flex: 1; }
+    .modal-head-text small { font-size: 0.72rem; color: var(--ink-muted); }
+    .modal-head-text h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.5rem;
+      font-weight: 400;
+      margin: 4px 0 8px;
+      line-height: 1.25;
+    }
+    .modal-close {
+      background: var(--tag-bg);
+      border: none;
+      color: var(--ink);
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      line-height: 1;
+      flex-shrink: 0;
+      transition: background 0.15s;
+    }
+    .modal-close:hover { background: var(--border); }
+    .modal-body { padding: 24px 28px 32px; }
+    .modal-section { margin-bottom: 22px; }
+    .modal-section h3 {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ink-muted);
+      margin-bottom: 8px;
+    }
+    .modal-section p {
+      font-size: 0.88rem;
+      line-height: 1.7;
+      color: var(--ink-soft);
+    }
+    .modal-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .modal-stat {
+      background: var(--bg);
+      border-radius: 8px;
+      padding: 12px 14px;
+    }
+    .modal-stat .label { font-size: 0.68rem; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
+    .modal-stat .value { font-size: 0.95rem; font-weight: 500; color: var(--ink); }
+    .modal-contact a { color: var(--accent); text-decoration: none; font-size: 0.88rem; }
+    .modal-contact a:hover { text-decoration: underline; }
+
+    /* ── EMPTY ── */
+    .empty {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 80px 20px;
+      color: var(--ink-muted);
+    }
+    .empty svg { margin-bottom: 16px; opacity: 0.4; }
+    .empty h3 { font-family: 'DM Serif Display', serif; font-size: 1.4rem; font-weight: 400; margin-bottom: 6px; color: var(--ink-soft); }
+    .empty p { font-size: 0.85rem; }
+
+    /* ── LOADING ── */
+    .loading { text-align: center; padding: 100px 20px; color: var(--ink-muted); font-size: 0.9rem; }
+    .spinner {
+      width: 36px; height: 36px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin: 0 auto 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── PAGINATION ── */
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 36px;
+      flex-wrap: wrap;
+    }
+    .page-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--ink);
+      font-family: inherit;
+      font-size: 0.85rem;
+      padding: 7px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .page-btn:hover { background: var(--accent-light); border-color: var(--accent); }
+    .page-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+    .page-btn:disabled { opacity: 0.4; cursor: default; }
+    .page-ellipsis { color: var(--ink-muted); padding: 0 4px; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      header { padding: 20px 20px 16px; }
+      .search-wrap { padding: 0 20px 16px; }
+      aside { display: none; }
+      main { padding: 20px 16px; }
+      .grid { grid-template-columns: 1fr; }
+      .modal { max-height: 95vh; }
+      .modal-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-title">
+    <h1>Catalogo Corsi<br><em>Piemonte 2026</em></h1>
+    <p>Formazione professionale finanziata — aggiornamento febbraio 2026</p>
+  </div>
+  <span class="header-count"><span id="count-num">–</span> corsi trovati</span>
+</header>
+
+<div class="search-wrap">
+  <div class="search-inner">
+    <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input id="search" type="search" placeholder="Cerca per titolo, ente, comune…" autocomplete="off" />
+  </div>
+</div>
+
+<div class="layout">
+
+  <aside>
+    <div class="filter-group">
+      <div class="filter-label">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        Provincia
+      </div>
+      <div class="filter-options" id="filter-provincia"></div>
+    </div>
+
+    <div class="filter-group">
+      <div class="filter-label">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Comune
+      </div>
+      <div class="filter-options scrollable" id="filter-comune"></div>
+    </div>
+
+    <div class="filter-group">
+      <div class="filter-label">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Orario
+      </div>
+      <div class="filter-options" id="filter-orario"></div>
+    </div>
+
+    <div class="filter-group">
+      <div class="filter-label">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        Certificazione
+      </div>
+      <div class="filter-options" id="filter-cert"></div>
+    </div>
+
+    <div class="filter-group">
+      <div class="filter-label">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Esenzione
+      </div>
+      <div class="filter-options" id="filter-esenzione"></div>
+    </div>
+
+    <button class="reset-btn" id="reset-btn">↺ Azzera tutti i filtri</button>
+  </aside>
+
+  <main>
+    <div class="active-filters" id="active-filters"></div>
+    <div class="results-bar">
+      <span class="results-text" id="results-text"></span>
+      <select class="sort-select" id="sort-select">
+        <option value="titolo-asc">Titolo A→Z</option>
+        <option value="titolo-desc">Titolo Z→A</option>
+        <option value="costo-asc">Costo crescente</option>
+        <option value="costo-desc">Costo decrescente</option>
+        <option value="ore-asc">Durata crescente</option>
+        <option value="ore-desc">Durata decrescente</option>
+      </select>
+    </div>
+    <div id="grid" class="grid">
+      <div class="loading"><div class="spinner"></div>Caricamento corsi…</div>
+    </div>
+    <div class="pagination" id="pagination"></div>
+  </main>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal" id="modal">
+    <div class="modal-head">
+      <div class="modal-head-text">
+        <small id="m-id"></small>
+        <h2 id="m-title"></h2>
+        <div class="card-meta" id="m-tags"></div>
+      </div>
+      <button class="modal-close" id="modal-close" aria-label="Chiudi">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-section">
+        <div class="modal-grid" id="m-grid"></div>
+      </div>
+      <div class="modal-section" id="m-sede-section">
+        <h3>Sede</h3>
+        <div class="modal-contact" id="m-sede"></div>
+      </div>
+      <div class="modal-section" id="m-desc-section">
+        <h3>Descrizione</h3>
+        <p id="m-desc"></p>
+      </div>
+      <div class="modal-section" id="m-prereq-section">
+        <h3>Prerequisiti</h3>
+        <p id="m-prereq"></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const PER_PAGE = 24;
+let allCorsi = [];
+let filtered = [];
+let activeFilters = { provincia: null, comune: null, orario: null, cert: null, esenzione: null };
+let searchQuery = '';
+let sortKey = 'titolo-asc';
+let currentPage = 1;
+
+// ── FETCH DATA ──
+fetch('corsi.json')
+  .then(r => r.json())
+  .then(data => {
+    allCorsi = data;
+    buildSidebar();
+    applyFilters();
+  })
+  .catch(() => {
+    document.getElementById('grid').innerHTML =
+      '<div class="empty"><p>Impossibile caricare corsi.json. Assicurati che il file sia nella stessa cartella di index.html.</p></div>';
+  });
+
+// ── SIDEBAR BUILD ──
+function buildSidebar() {
+  const counts = (key) => {
+    const map = {};
+    allCorsi.forEach(c => { const v = c[key] || 'N/D'; map[v] = (map[v]||0)+1; });
+    return Object.entries(map).sort((a,b) => b[1]-a[1]);
+  };
+
+  buildFilter('filter-provincia', counts('provincia'), 'provincia');
+  buildFilter('filter-comune', counts('comune'), 'comune');
+  buildFilter('filter-orario', counts('orario'), 'orario');
+  buildFilter('filter-cert', counts('certificazione'), 'cert');
+  buildFilter('filter-esenzione', counts('esenzione'), 'esenzione');
+}
+
+function buildFilter(elId, entries, filterKey) {
+  const el = document.getElementById(elId);
+  el.innerHTML = '';
+  entries.forEach(([val, cnt]) => {
+    const btn = document.createElement('button');
+    btn.className = 'filter-btn';
+    btn.dataset.key = filterKey;
+    btn.dataset.val = val;
+    btn.innerHTML = `<span>${val}</span><span class="badge">${cnt}</span>`;
+    btn.addEventListener('click', () => toggleFilter(filterKey, val, btn));
+    el.appendChild(btn);
+  });
+}
+
+function toggleFilter(key, val, btn) {
+  if (activeFilters[key] === val) {
+    activeFilters[key] = null;
+    btn.classList.remove('active');
+  } else {
+    document.querySelectorAll(`.filter-btn[data-key="${key}"]`).forEach(b => b.classList.remove('active'));
+    activeFilters[key] = val;
+    btn.classList.add('active');
+  }
+  currentPage = 1;
+  applyFilters();
+}
+
+// ── SEARCH ──
+document.getElementById('search').addEventListener('input', e => {
+  searchQuery = e.target.value.toLowerCase().trim();
+  currentPage = 1;
+  applyFilters();
+});
+
+// ── SORT ──
+document.getElementById('sort-select').addEventListener('change', e => {
+  sortKey = e.target.value;
+  currentPage = 1;
+  renderGrid();
+});
+
+// ── RESET ──
+document.getElementById('reset-btn').addEventListener('click', () => {
+  activeFilters = { provincia: null, comune: null, orario: null, cert: null, esenzione: null };
+  searchQuery = '';
+  document.getElementById('search').value = '';
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  currentPage = 1;
+  applyFilters();
+});
+
+// ── FILTER LOGIC ──
+function applyFilters() {
+  filtered = allCorsi.filter(c => {
+    if (activeFilters.provincia && c.provincia !== activeFilters.provincia) return false;
+    if (activeFilters.comune && c.comune !== activeFilters.comune) return false;
+    if (activeFilters.orario && c.orario !== activeFilters.orario) return false;
+    if (activeFilters.cert && c.certificazione !== activeFilters.cert) return false;
+    if (activeFilters.esenzione && c.esenzione !== activeFilters.esenzione) return false;
+    if (searchQuery) {
+      const haystack = [c.titolo, c.operatore, c.comune, c.sede].join(' ').toLowerCase();
+      if (!haystack.includes(searchQuery)) return false;
+    }
+    return true;
+  });
+  document.getElementById('count-num').textContent = filtered.length;
+  renderChips();
+  renderGrid();
+}
+
+// ── CHIPS ──
+const filterLabels = { provincia: 'Provincia', comune: 'Comune', orario: 'Orario', cert: 'Certificazione', esenzione: 'Esenzione' };
+function renderChips() {
+  const el = document.getElementById('active-filters');
+  el.innerHTML = '';
+  Object.entries(activeFilters).forEach(([key, val]) => {
+    if (!val) return;
+    const chip = document.createElement('div');
+    chip.className = 'chip';
+    chip.innerHTML = `<span>${filterLabels[key]}: <strong>${val}</strong></span><button title="Rimuovi filtro">×</button>`;
+    chip.querySelector('button').addEventListener('click', () => {
+      activeFilters[key] = null;
+      document.querySelectorAll(`.filter-btn[data-key="${key}"]`).forEach(b => b.classList.remove('active'));
+      currentPage = 1;
+      applyFilters();
+    });
+    el.appendChild(chip);
+  });
+}
+
+// ── SORT ──
+function sortedFiltered() {
+  const arr = [...filtered];
+  const [field, dir] = sortKey.split('-');
+  arr.sort((a, b) => {
+    let av = a[field === 'cert' ? 'certificazione' : field] || '';
+    let bv = b[field === 'cert' ? 'certificazione' : field] || '';
+    if (field === 'costo' || field === 'ore') {
+      av = parseFloat(av) || 0;
+      bv = parseFloat(bv) || 0;
+    } else {
+      av = av.toLowerCase();
+      bv = bv.toLowerCase();
+    }
+    if (av < bv) return dir === 'asc' ? -1 : 1;
+    if (av > bv) return dir === 'asc' ? 1 : -1;
+    return 0;
+  });
+  return arr;
+}
+
+// ── RENDER GRID ──
+function renderGrid() {
+  const sorted = sortedFiltered();
+  const total = sorted.length;
+  const totalPages = Math.ceil(total / PER_PAGE);
+  if (currentPage > totalPages) currentPage = 1;
+
+  const start = (currentPage - 1) * PER_PAGE;
+  const page = sorted.slice(start, start + PER_PAGE);
+
+  document.getElementById('results-text').textContent =
+    total === 0 ? 'Nessun risultato' :
+    `${start+1}–${Math.min(start+PER_PAGE, total)} di ${total} corsi`;
+
+  const grid = document.getElementById('grid');
+  if (total === 0) {
+    grid.innerHTML = `<div class="empty">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/><path d="M8 11h6M11 8v6"/></svg>
+      <h3>Nessun corso trovato</h3>
+      <p>Prova a modificare i filtri o la ricerca.</p>
+    </div>`;
+    document.getElementById('pagination').innerHTML = '';
+    return;
+  }
+
+  grid.innerHTML = '';
+  page.forEach((c, i) => {
+    const card = buildCard(c, i);
+    grid.appendChild(card);
+  });
+
+  renderPagination(totalPages);
+}
+
+function buildCard(c, i) {
+  const el = document.createElement('div');
+  el.className = 'card';
+  el.style.animationDelay = `${i * 20}ms`;
+
+  const costo = parseFloat(c.costo) || 0;
+  const contributo = costo > 0 ? (costo * 0.3) : 0;
+  const contributoFmt = contributo > 0 ? `€ ${contributo.toLocaleString('it-IT', {maximumFractionDigits:0})}` : '';
+  const costoFmt = costo > 0 ? `€ ${costo.toLocaleString('it-IT')}` : '–';
+
+  el.innerHTML = `
+    <div class="card-header">
+      <span class="card-id"># ${c.id}</span>
+      <div class="card-title">${cap(c.titolo)}</div>
+      <div class="card-operatore">${c.operatore}</div>
+    </div>
+    <div class="card-meta">
+      ${c.provincia ? `<span class="tag tag-provincia">${c.provincia}</span>` : ''}
+      ${c.orario ? `<span class="tag tag-orario">${c.orario}</span>` : ''}
+      ${c.certificazione ? `<span class="tag tag-cert">${c.certificazione}</span>` : ''}
+      ${c.esenzione && c.esenzione !== 'NESSUNA' ? `<span class="tag tag-esenzione">${c.esenzione}</span>` : ''}
+    </div>
+    <div class="card-footer">
+      <div class="card-info-row">
+        ${c.ore ? `<span class="card-stat">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          ${c.ore} ore
+        </span>` : ''}
+        ${c.comune ? `<span class="card-stat">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          ${cap(c.comune)}
+        </span>` : ''}
+      </div>
+      ${contributo > 0 ? `<div class="card-cost">
+        <span class="cost-private">${contributoFmt}</span>
+        <span class="cost-sub">il tuo contributo 30%</span>
+        <span class="cost-sub">prezzo pieno ${costoFmt}</span>
+      </div>` : ''}
+    </div>
+  `;
+  el.addEventListener('click', () => openModal(c));
+  return el;
+}
+
+// ── PAGINATION ──
+function renderPagination(totalPages) {
+  const el = document.getElementById('pagination');
+  if (totalPages <= 1) { el.innerHTML = ''; return; }
+
+  const pages = getPageNums(currentPage, totalPages);
+  el.innerHTML = '';
+
+  const prev = document.createElement('button');
+  prev.className = 'page-btn';
+  prev.textContent = '← Prec';
+  prev.disabled = currentPage === 1;
+  prev.addEventListener('click', () => { currentPage--; renderGrid(); scrollToTop(); });
+  el.appendChild(prev);
+
+  pages.forEach(p => {
+    if (p === '…') {
+      const sp = document.createElement('span');
+      sp.className = 'page-ellipsis';
+      sp.textContent = '…';
+      el.appendChild(sp);
+    } else {
+      const btn = document.createElement('button');
+      btn.className = 'page-btn' + (p === currentPage ? ' active' : '');
+      btn.textContent = p;
+      btn.addEventListener('click', () => { currentPage = p; renderGrid(); scrollToTop(); });
+      el.appendChild(btn);
+    }
+  });
+
+  const next = document.createElement('button');
+  next.className = 'page-btn';
+  next.textContent = 'Succ →';
+  next.disabled = currentPage === totalPages;
+  next.addEventListener('click', () => { currentPage++; renderGrid(); scrollToTop(); });
+  el.appendChild(next);
+}
+
+function getPageNums(cur, total) {
+  if (total <= 7) return Array.from({length: total}, (_, i) => i+1);
+  const pages = [1];
+  if (cur > 3) pages.push('…');
+  for (let i = Math.max(2, cur-1); i <= Math.min(total-1, cur+1); i++) pages.push(i);
+  if (cur < total - 2) pages.push('…');
+  pages.push(total);
+  return pages;
+}
+
+function scrollToTop() {
+  document.querySelector('main').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ── MODAL ──
+function openModal(c) {
+  document.getElementById('m-id').textContent = `Corso # ${c.id}`;
+  document.getElementById('m-title').textContent = cap(c.titolo);
+
+  const tags = document.getElementById('m-tags');
+  tags.innerHTML = `
+    ${c.provincia ? `<span class="tag tag-provincia">${c.provincia}</span>` : ''}
+    ${c.orario ? `<span class="tag tag-orario">${c.orario}</span>` : ''}
+    ${c.certificazione ? `<span class="tag tag-cert">${c.certificazione}</span>` : ''}
+    ${c.esenzione && c.esenzione !== 'NESSUNA' ? `<span class="tag tag-esenzione">${c.esenzione}</span>` : ''}
+  `;
+
+  const costo = parseFloat(c.costo) || 0;
+  const tuo = costo > 0 ? `€ ${(costo * 0.3).toLocaleString('it-IT', {maximumFractionDigits:0})} (30%)` : '–';
+  document.getElementById('m-grid').innerHTML = `
+    <div class="modal-stat"><div class="label">Durata</div><div class="value">${c.ore || '–'} ore</div></div>
+    <div class="modal-stat"><div class="label">Orario</div><div class="value">${c.orario || '–'}</div></div>
+    <div class="modal-stat"><div class="label">Costo totale</div><div class="value">${costo > 0 ? '€ ' + costo.toLocaleString('it-IT') : '–'}</div></div>
+    <div class="modal-stat"><div class="label">Tuo contributo</div><div class="value">${tuo}</div></div>
+    <div class="modal-stat"><div class="label">Giorni/settimana</div><div class="value">${c.giorni_settimana || '–'}</div></div>
+    <div class="modal-stat"><div class="label">Esenzione</div><div class="value">${c.esenzione || '–'}</div></div>
+  `;
+
+  const sedeEl = document.getElementById('m-sede');
+  let sedeHtml = `<p style="font-size:.88rem;color:var(--ink-soft);line-height:1.7;">`;
+  sedeHtml += `<strong>${c.operatore}</strong><br>`;
+  if (c.sede && c.sede !== c.operatore) sedeHtml += `${c.sede}<br>`;
+  if (c.indirizzo) sedeHtml += `${cap(c.indirizzo)}, ${cap(c.comune)} (${c.provincia})<br>`;
+  if (c.telefono) sedeHtml += `📞 <a href="tel:${c.telefono}">${c.telefono}</a><br>`;
+  if (c.email) sedeHtml += `✉️ <a href="mailto:${c.email}">${c.email}</a>`;
+  sedeHtml += `</p>`;
+  sedeEl.innerHTML = sedeHtml;
+
+  const descEl = document.getElementById('m-desc');
+  if (c.descrizione) {
+    descEl.textContent = c.descrizione;
+    document.getElementById('m-desc-section').style.display = '';
+  } else {
+    document.getElementById('m-desc-section').style.display = 'none';
+  }
+
+  const prereqEl = document.getElementById('m-prereq');
+  if (c.prerequisiti) {
+    prereqEl.textContent = c.prerequisiti;
+    document.getElementById('m-prereq-section').style.display = '';
+  } else {
+    document.getElementById('m-prereq-section').style.display = 'none';
+  }
+
+  document.getElementById('modal-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+document.getElementById('modal-close').addEventListener('click', closeModal);
+document.getElementById('modal-overlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('modal-overlay')) closeModal();
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// ── UTILS ──
+function cap(str) {
+  if (!str) return '';
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+}
+</script>
+</body>
+</html>
